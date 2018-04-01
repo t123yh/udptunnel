@@ -31,7 +31,6 @@ Create a server configuration file:
 {
 	"TunnelAddress": "10.0.0.1",
 	"NetworkAddress": ":8000",
-	"AllowedPorts": [22],
 }
 ```
 
@@ -44,7 +43,6 @@ Create a client configuration file:
 {
 	"TunnelAddress": "10.0.0.2",
 	"NetworkAddress": "server.example.com:8000",
-	"AllowedPorts": [22],
 }
 ```
 
