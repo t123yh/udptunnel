@@ -39,7 +39,6 @@ type tunnel struct {
 	tunLocalAddr  string
 	tunRemoteAddr string
 	netAddr       string
-	ports         []uint16
 	magic         string
 
 	log logger
@@ -159,7 +158,6 @@ func (t tunnel) run(ctx context.Context) {
 	if t.testReady != nil {
 		close(t.testReady)
 	}
-	pf := newPortFilter(t.ports)
 	pl := newPacketLogger(ctx, &wg, t.log)
 
 	// Handle outbound traffic.
@@ -179,7 +177,7 @@ func (t tunnel) run(ctx context.Context) {
 			p := b[len(magic):n]
 
 			raddr := t.loadRemoteAddr()
-			if pf.Filter(p, outbound) || raddr == nil {
+			if raddr == nil {
 				if t.testDrop != nil {
 					t.testDrop <- append([]byte(nil), p...)
 				}
@@ -232,14 +230,6 @@ func (t tunnel) run(ctx context.Context) {
 			}
 			if len(p) == 0 {
 				continue // Assume empty packets are a form of pinging
-			}
-
-			if pf.Filter(p, inbound) {
-				if t.testDrop != nil {
-					t.testDrop <- append([]byte(nil), p...)
-				}
-				pl.Log(p, inbound, true)
-				continue
 			}
 
 			if _, err := iface.Write(p); err != nil {
